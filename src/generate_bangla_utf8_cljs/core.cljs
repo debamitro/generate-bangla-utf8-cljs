@@ -1,15 +1,34 @@
 (ns generate-bangla-utf8-cljs.core
   )
 
+(defn convert-to-bangla-utf8
+  [englishInput]
+  "\u0995"
+  )
+
+(defn get-document-querySelector
+  [selector]
+  (js/document.querySelector selector)
+  )
+
 (defn handle-convert-request
   []
-  (js/console.log "clicked convert")
+  (set! (.-innerHTML
+         (get-document-querySelector "#banglaOutput")
+         )
+         (convert-to-bangla-utf8
+          (.-value
+           (get-document-querySelector "#englishInput")
+           )
+          )
+         )
+
   )
 
 (defn attach-events
   []
   (.addEventListener
-   (js/document.querySelector "#convertButton")
+   (get-document-querySelector "#convertButton")
    "click"
    handle-convert-request
    )
@@ -17,10 +36,7 @@
 
 (js/ready attach-events)
 
-
-;; (js/console.log "Hah")
-
-;; This is for nodejs
+;; This part is for nodejs
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
