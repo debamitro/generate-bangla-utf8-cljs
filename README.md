@@ -1,36 +1,22 @@
 # generate-bangla-utf8-cljs
 
-FIXME: description
+A ClojureScript version of https://github.com/debamitro/generate-bangla-utf8
 
 ## Installation
 
-Download from http://example.com/FIXME.
+TBD
 
 ## Usage
 
-FIXME: explanation
-
-    $ java -jar generate-bangla-utf8-cljs-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
+TBD
 
 ## Examples
 
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+TBD
 
 ## License
 
-Copyright © 2018 FIXME
+Copyright © 2018 Debamitro Chakraborti
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
