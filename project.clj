@@ -8,6 +8,30 @@
                  [org.clojure/clojurescript "1.9.946"]
                  ]
   :plugins [[lein-cljsbuild "1.1.5"]]
+  :cljsbuild {
+              :builds [
+                       {:id "default"
+                        :source-paths ["src"]
+                        :compiler {
+                                   :output-to "target/out.js"
+                                   :main generate-bangla-utf8-cljs.core
+                                   :pretty-print true
+                                   :optimizations :simple
+                                   }
+                        }
+                       {:id "node"
+                        :source-paths ["src"]
+                        :compiler {
+                                   :output-to "target/out_node.js"
+                                   :main generate-bangla-utf8-cljs.core
+                                   :target :nodejs
+                                   :pretty-print true
+                                   :optimizations :simple
+                                   }
+                        }
+
+                       ]
+              }
   :main ^:skip-aot generate-bangla-utf8-cljs.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
