@@ -1,9 +1,5 @@
 (ns generate-bangla-utf8-cljs.core
-  )
-
-(defn convert-to-bangla-utf8
-  [englishInput]
-  "\u0995"
+  (:require [generate-bangla-utf8-cljs.converter :as converter])
   )
 
 (defn get-document-querySelector
@@ -16,7 +12,7 @@
   (set! (.-innerHTML
          (get-document-querySelector "#banglaOutput")
          )
-         (convert-to-bangla-utf8
+         (converter/to-bangla-utf8
           (.-value
            (get-document-querySelector "#englishInput")
            )
