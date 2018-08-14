@@ -25,6 +25,21 @@
    }
   )
 
+(def bangla-vowel-prefixes
+  {
+   "a" ""
+   "A" "\u09BE"
+   "i" "\u09BF"
+   "I" "\u09C0"
+   "u" "\u09C1"
+   "U" "\u09C2"
+   "e" "\u09C7"
+   "oi" "\u09C8"
+   "o" "\u09CB"
+   "ou" "\u09CC"
+   }
+  )
+
 (defn convert-one-character
   [oneEnglishCharacter]
   (get bangla-consonants oneEnglishCharacter oneEnglishCharacter)
@@ -60,13 +75,29 @@
    :unconverted (rest chars)}
   )
 
-(defn convert-symbol
-  "Need to implement this"
+(defn convert-vowel-prefix
   [chars]
-  {:converted (str (first chars)) :unconverted (rest chars)}
+  {:converted (bangla-vowel-prefixes (str (first chars)))
+   :unconverted (rest chars)}
+  )
+
+(def bangla-symbols
+  {
+   "^" "\u0981"
+   ":" "\u0983"
+   ";" "\u0982"
+   }
+  )
+
+(defn convert-symbol
+  [chars]
+  {:converted (bangla-symbols (str (first chars)))
+   :unconverted (rest chars)}
   )
 
 (defn convert-space
+  "This function does not do anything to
+  the first character of the input at all"
   [chars]
   {:converted (str (first chars)) :unconverted (rest chars)}
   )
@@ -77,7 +108,43 @@
    :unconverted (rest chars)}
   )
 
+(defn prepend-string-to-conversion
+  [string {:keys [converted unconverted]}]
+  {:converted (str string converted) :unconverted unconverted}
+  )
+
+(defn convert-vowel-prefix-following-consonant
+  [{:keys [converted unconverted]}]
+     (if (not (empty? unconverted))
+       (if (is-vowel? (first unconverted))
+         (prepend-string-to-conversion
+          converted
+          (convert-vowel-prefix unconverted)
+          )
+         {:converted converted :unconverted unconverted}
+         )
+       {:converted converted :unconverted unconverted}
+       )
+  )
+
+(defn convert-consonant-and-vowel
+  "This function tries to convert a vowel
+  prefix following a consonant, if applicable.
+  Otherwise it does nothing other than convert-consonant"
+  [chars]
+  (convert-vowel-prefix-following-consonant
+   (convert-consonant chars)
+   )
+  )
+
 (defn convert
+  "This function decides which routine to call
+  on the character stream chars out of
+  convert-space
+  convert-symbol
+  convert-vowel
+  convert-consonant.
+  It also calls the selected routine"
   [chars]
   (let [firstchar (first chars)]
     (if (is-space? firstchar)
@@ -86,7 +153,7 @@
         (convert-vowel chars)
         (if (is-symbol? firstchar)
           (convert-symbol chars)
-          (convert-consonant chars)
+          (convert-consonant-and-vowel chars)
           )
         )
       )
