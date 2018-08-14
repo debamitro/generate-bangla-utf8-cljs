@@ -36,6 +36,11 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (js/console.log "Hello, World!"))
+  (js/console.log
+   (converter/to-bangla-utf8
+    (nth (.-argv js/process) 1)
+    )
+   )
+  )
 
 (set! *main-cli-fn* -main)

@@ -2,10 +2,12 @@
   )
 
 (def bangla-consonants
-  {"k" "\u0995"
+  {
+   "k" "\u0995"
    "K" "\u0996"
    "g" "\u0997"
-   "G" "\u0998"}
+   "G" "\u0998"
+   }
   )
 
 (def bangla-vowels
@@ -50,11 +52,45 @@
   "This function accepts a string
   or collection of characters and returns a
   map having a string with key :converted (representing
-  the output of parsing) and a collection of
-  characters with key :unconverted"
+  the output of conversion) and a collection of
+  characters with key :unconverted (representing what
+  was left untouched)"
   [chars]
   {:converted (bangla-vowels (str (first chars)))
    :unconverted (rest chars)}
+  )
+
+(defn convert-symbol
+  "Need to implement this"
+  [chars]
+  {:converted (str (first chars)) :unconverted (rest chars)}
+  )
+
+(defn convert-space
+  [chars]
+  {:converted (str (first chars)) :unconverted (rest chars)}
+  )
+
+(defn convert-consonant
+  [chars]
+  {:converted (bangla-consonants (str (first chars)))
+   :unconverted (rest chars)}
+  )
+
+(defn convert
+  [chars]
+  (let [firstchar (first chars)]
+    (if (is-space? firstchar)
+      (convert-space chars)
+      (if (is-vowel? firstchar)
+        (convert-vowel chars)
+        (if (is-symbol? firstchar)
+          (convert-symbol chars)
+          (convert-consonant chars)
+          )
+        )
+      )
+    )
   )
 
 (defn parse-all
@@ -72,7 +108,7 @@
             (parse-all {:parsed converted :unparsed unconverted})
             )
 
-          (convert-vowel unparsed)
+          (convert unparsed)
           )
          )
     )
