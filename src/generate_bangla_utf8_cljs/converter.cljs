@@ -7,6 +7,54 @@
    "K" "\u0996"
    "g" "\u0997"
    "G" "\u0998"
+   "ng" "\u0999"
+   "ch" "\u099A"
+   "Ch" "\u099B"
+   "j" "\u099C"
+   "J" "\u099D"
+   "NG" "\u099E"
+   "T" "\u099F"
+   "Th" "\u09A0"
+   "D" "\u09A1"
+   "Dh" "\u09A2"
+   "N" "\u09A3"
+   "t" "\u09A4"
+   "th" "\u09A5"
+   "d" "\u09A6"
+   "dh" "\u09A7"
+   "n" "\u09A8"
+   "p" "\u09AA"
+   "f" "\u09AB"
+   "b" "\u09AC"
+   "bh" "\u09AD"
+   "m" "\u09AE"
+   "y" "\u09AF"
+   "r" "\u09B0"
+   "l" "\u09B2"
+   "sh" "\u09B6"
+   "Sh" "\u09B7"
+   "s" "\u09B8"
+   "h" "\u09B9"
+   "rh" "\u09DC"
+   "Rh" "\u09DD"
+   }
+  )
+
+(def bangla-two-character-consonants
+  {
+   "ng" "\u0999"
+   "ch" "\u099A"
+   "Ch" "\u099B"
+   "NG" "\u099E"
+   "Th" "\u09A0"
+   "Dh" "\u09A2"
+   "th" "\u09A5"
+   "dh" "\u09A7"
+   "bh" "\u09AD"
+   "sh" "\u09B6"
+   "Sh" "\u09B7"
+   "rh" "\u09DC"
+   "Rh" "\u09DD"
    }
   )
 
@@ -40,11 +88,6 @@
    }
   )
 
-(defn convert-one-character
-  [oneEnglishCharacter]
-  (get bangla-consonants oneEnglishCharacter oneEnglishCharacter)
-  )
-
 (defn is-space?
   [c]
   (= c \space)
@@ -61,6 +104,15 @@
       (= c \:)
       (= c \;)
       false)
+  )
+
+(defn is-consonant?
+  [c]
+  (and (not= c nil)
+       (not (is-space? c))
+       (not (is-vowel? c))
+       (not (is-symbol? c))
+       )
   )
 
 (defn convert-vowel
@@ -102,15 +154,41 @@
   {:converted (str (first chars)) :unconverted (rest chars)}
   )
 
-(defn convert-consonant
+(defn prepend-string-to-conversion
+  [string {:keys [converted unconverted]}]
+  {:converted (str string converted) :unconverted unconverted}
+  )
+
+(defn convert-one-consonant
   [chars]
   {:converted (bangla-consonants (str (first chars)))
    :unconverted (rest chars)}
   )
 
-(defn prepend-string-to-conversion
-  [string {:keys [converted unconverted]}]
-  {:converted (str string converted) :unconverted unconverted}
+(defn insert-join-character
+  [chars]
+  (apply str (first chars)
+         (map (fn [char]
+                (str "\u09CD" char)
+                )
+              (rest chars)
+              )
+         )
+  )
+
+(defn convert-consonant
+  [{:keys [converted unconverted]}]
+  (let [firstchar (first unconverted)]
+    (if (is-consonant? firstchar)
+      (convert-consonant
+       (prepend-string-to-conversion
+        converted
+        (convert-one-consonant unconverted)
+        )
+       )
+      {:converted (insert-join-character converted) :unconverted unconverted}
+      )
+    )
   )
 
 (defn convert-vowel-prefix-following-consonant
@@ -133,7 +211,7 @@
   Otherwise it does nothing other than convert-consonant"
   [chars]
   (convert-vowel-prefix-following-consonant
-   (convert-consonant chars)
+   (convert-consonant {:converted "" :unconverted chars})
    )
   )
 
