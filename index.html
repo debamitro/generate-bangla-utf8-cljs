@@ -6,13 +6,19 @@
     <title>Write Bangla</title>
     <script src="resources/onready.js"></script>
     <script src="target/out.js" charset="utf-8"></script>
+    <script>
+      ready(generate_bangla_utf8_cljs.core.attach_events);
+    </script>
   </head>
 
   <body>
-    <h3>Input</h3>
+    <h1>Bangla UTF-8 Generator</h1>
+    A Clojure/ClojureScript version of the original <a href="https://github.com/debamitro/generate-bangla-utf8" target="_blank">C++ version</a><br />
+    Source code: <a href="https://github.com/debamitro/generate-bangla-utf8-cljs" target="_blank">https://github.com/debamitro/generate-bangla-utf8-cljs</a>
+    <h3>Input using English</h3>
     <textarea id="englishInput"></textarea><br/>
     <button id="convertButton">Convert</button>
-    <h3>Output</h3>
+    <h3>Output in Unicode</h3>
     <div id="banglaOutput"></div>
   </body>
 </html>

@@ -16,7 +16,7 @@
                                    :output-to "target/out.js"
                                    :main generate-bangla-utf8-cljs.core
                                    :pretty-print true
-                                   :optimizations :simple
+                                   :optimizations :advanced
                                    }
                         }
                        {:id "node"
@@ -26,10 +26,9 @@
                                    :main generate-bangla-utf8-cljs.core
                                    :target :nodejs
                                    :pretty-print true
-                                   :optimizations :simple
+                                   :optimizations :advanced
                                    }
                         }
-
                        ]
               }
   :main ^:skip-aot generate-bangla-utf8-cljs.core
