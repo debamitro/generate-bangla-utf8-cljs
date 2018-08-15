@@ -75,6 +75,13 @@
    }
   )
 
+(def bangla-two-character-vowels
+  {
+   "oi" "\u0990"
+   "ou" "\u0994"
+   }
+  )
+
 (def bangla-vowel-prefixes
   {
    "a" ""
@@ -117,24 +124,6 @@
        )
   )
 
-(defn convert-vowel
-  "This function accepts a string
-  or collection of characters and returns a
-  map having a string with key :converted (representing
-  the output of conversion) and a collection of
-  characters with key :unconverted (representing what
-  was left untouched)"
-  [chars]
-  {:converted (bangla-vowels (str (first chars)))
-   :unconverted (rest chars)}
-  )
-
-(defn convert-vowel-prefix
-  [chars]
-  {:converted (bangla-vowel-prefixes (str (first chars)))
-   :unconverted (rest chars)}
-  )
-
 (def bangla-symbols
   {
    "^" "\u0981"
@@ -166,6 +155,19 @@
   (cons (first chars) (first (rest chars)))
   )
 
+(defn try-two-conversions
+  [chars fn1 fn2]
+  ((fn [{:keys [converted unconverted]}]
+     (if (empty? converted)
+       {:converted (fn2 (str (first chars)))
+        :unconverted (rest chars)}
+       {:converted converted :unconverted unconverted}
+       )
+     )
+   (fn1 chars)
+   )
+  )
+
 (defn convert-two-character-consonant
   [chars]
   (if (> (count chars) 1)
@@ -175,17 +177,39 @@
     )
   )
 
+(defn convert-two-character-vowel
+  [chars]
+  (if (> (count chars) 1)
+    {:converted (bangla-two-character-vowels (apply str (firsttwo chars)))
+     :unconverted (rest (rest chars))}
+    {:converted "" :unconverted chars}
+    )
+  )
+
 (defn convert-one-consonant
   [chars]
-  ((fn [{:keys [converted unconverted]}]
-     (if (empty? converted)
-       {:converted (bangla-consonants (str (first chars)))
-        :unconverted (rest chars)}
-       {:converted converted :unconverted unconverted}
-       )
-     )
-   (convert-two-character-consonant chars)
-   )
+  (try-two-conversions chars
+                       convert-two-character-consonant
+                       bangla-consonants)
+  )
+
+(defn convert-vowel
+  "This function accepts a string
+  or collection of characters and returns a
+  map having a string with key :converted (representing
+  the output of conversion) and a collection of
+  characters with key :unconverted (representing what
+  was left untouched)"
+  [chars]
+  (try-two-conversions chars
+                       convert-two-character-vowel
+                       bangla-vowels)
+  )
+
+(defn convert-vowel-prefix
+  [chars]
+  {:converted (bangla-vowel-prefixes (str (first chars)))
+   :unconverted (rest chars)}
   )
 
 (defn insert-join-character
