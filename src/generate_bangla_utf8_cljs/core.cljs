@@ -30,17 +30,22 @@
    )
   )
 
-(js/ready attach-events)
+;; This part is for the browser
+(when (exists? js/ready)
+  (js/ready attach-events)
+  )
 
 ;; This part is for nodejs
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (js/console.log
-   (converter/to-bangla-utf8
-    (nth (.-argv js/process) 1)
+  (when (> (count (.-argv js/process)) 2)
+    (js/console.log
+     (converter/to-bangla-utf8
+      (nth (.-argv js/process) 2)
+      )
+     )
     )
-   )
   )
 
 (set! *main-cli-fn* -main)
