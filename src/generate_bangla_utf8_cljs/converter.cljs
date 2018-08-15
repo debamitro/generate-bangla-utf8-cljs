@@ -42,6 +42,8 @@
 
 (def bangla-two-character-consonants
   {
+   "kh" "\u0996"
+   "gh" "\u0998"
    "ng" "\u0999"
    "ch" "\u099A"
    "Ch" "\u099B"
@@ -159,10 +161,31 @@
   {:converted (str string converted) :unconverted unconverted}
   )
 
+(defn firsttwo
+  [chars]
+  (cons (first chars) (first (rest chars)))
+  )
+
+(defn convert-two-character-consonant
+  [chars]
+  (if (> (count chars) 1)
+    {:converted (bangla-two-character-consonants (apply str (firsttwo chars)))
+     :unconverted (rest (rest chars))}
+    {:converted "" :unconverted chars}
+    )
+  )
+
 (defn convert-one-consonant
   [chars]
-  {:converted (bangla-consonants (str (first chars)))
-   :unconverted (rest chars)}
+  ((fn [{:keys [converted unconverted]}]
+     (if (empty? converted)
+       {:converted (bangla-consonants (str (first chars)))
+        :unconverted (rest chars)}
+       {:converted converted :unconverted unconverted}
+       )
+     )
+   (convert-two-character-consonant chars)
+   )
   )
 
 (defn insert-join-character
