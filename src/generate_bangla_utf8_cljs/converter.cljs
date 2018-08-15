@@ -269,7 +269,11 @@
   convert-symbol
   convert-vowel
   convert-consonant.
-  It also calls the selected routine"
+  It also calls the selected routine.
+  All of the underlying routines return a map
+  with the converted output stored under key :converted
+  and unconverted input stored under key :unconverted
+  "
   [chars]
   (let [firstchar (first chars)]
     (if (is-space? firstchar)
@@ -285,29 +289,15 @@
     )
   )
 
-(defn parse-all
-  "This function accepts a map having
-  a string with key :parsed and
-  a string or collection of characters with key :unparsed.
-  This returns a concatenation of :parsed and the
-  result of parsing :unparsed."
-  [{:keys [parsed unparsed]}]
-  (if (empty? unparsed)
-    parsed
-    (str parsed
-         (
-          (fn [{:keys [converted unconverted]}]
-            (parse-all {:parsed converted :unparsed unconverted})
-            )
-
-          (convert unparsed)
-          )
-         )
-    )
-  )
-
-(defn to-bangla-utf8
+(defn ^:export to-bangla-utf8
   "This routine is the only functionality exported from this namespace"
   [englishInput]
-  (parse-all {:parsed "" :unparsed englishInput})
+  (if (empty? englishInput)
+    ""
+    ((fn [{:keys [converted unconverted]}]
+       (str converted (to-bangla-utf8 unconverted))
+       )
+     (convert englishInput)
+     )
+    )
   )

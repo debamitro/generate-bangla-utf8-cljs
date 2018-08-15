@@ -21,18 +21,13 @@
 
   )
 
-(defn attach-events
+(defn ^:export attach-events
   []
   (.addEventListener
    (get-document-querySelector "#convertButton")
    "click"
    handle-convert-request
    )
-  )
-
-;; This part is for the browser
-(when (exists? js/ready)
-  (js/ready attach-events)
   )
 
 ;; This part is for nodejs
