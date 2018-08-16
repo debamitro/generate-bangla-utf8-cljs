@@ -164,7 +164,7 @@
   [chars]
   {:converted (str (first chars)) :unconverted (rest chars)})
 
-(defn prepend-string-to-conversion
+(defn prepend-string-to-converted
   [string {:keys [converted unconverted]}]
   {:converted (str string converted) :unconverted unconverted})
 
@@ -213,21 +213,24 @@
   [chars]
   (apply str (interpose bangla-join-character chars)))
 
-(defn convert-consonant
+(defn join-multiple-consonants
   [{:keys [converted unconverted]}]
-  (let [firstchar (first unconverted)]
-    (if (is-consonant? firstchar)
-      (convert-consonant
-       (prepend-string-to-conversion
-        converted
-        ((make-one-letter-converter consonant-to-utf8) unconverted)))
-      {:converted (insert-join-character converted) :unconverted unconverted})))
+  {:converted (insert-join-character converted) :unconverted unconverted})
+
+(defn convert-consonant
+  [chars]
+  (loop [state {:converted "" :unconverted chars}]
+    (if (not (is-consonant? (first (state :unconverted))))
+      (join-multiple-consonants state)
+      (recur (prepend-string-to-converted
+              (state :converted)
+              ((make-one-letter-converter consonant-to-utf8) (state :unconverted)))))))
 
 (defn convert-vowel-prefix-following-consonant
   [{:keys [converted unconverted]}]
   (if (not (empty? unconverted))
     (if (is-vowel? (first unconverted))
-      (prepend-string-to-conversion
+      (prepend-string-to-converted
        converted
        ((make-one-letter-converter vowel-prefix-to-utf8) unconverted))
       {:converted converted :unconverted unconverted})
@@ -240,7 +243,7 @@
   []
   (fn [chars]
     (convert-vowel-prefix-following-consonant
-      (convert-consonant {:converted "" :unconverted chars}))))
+      (convert-consonant chars))))
 
 (defn make-converter
   "Generate a function for conversion
