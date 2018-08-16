@@ -237,13 +237,9 @@
     {:converted converted :unconverted unconverted}))
 
 (defn make-consonant-and-vowel-converter
-  "Generate a function for converting a
-  consonant (single or compound) optionally
-  followed by a vowel prefix"
-  []
-  (fn [chars]
-    (convert-vowel-prefix-following-consonant
-      (convert-consonant chars))))
+ []
+ (fn [chars]
+  (-> chars convert-consonant convert-vowel-prefix-following-consonant)))
 
 (defn make-converter
   "Generate a function for conversion
