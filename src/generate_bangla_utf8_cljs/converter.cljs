@@ -3,40 +3,40 @@
 
 (def bangla-consonants
   {
-   "k" "\u0995"
-   "K" "\u0996"
-   "g" "\u0997"
-   "G" "\u0998"
-   "ng" "\u0999"
-   "ch" "\u099A"
-   "Ch" "\u099B"
-   "j" "\u099C"
-   "J" "\u099D"
-   "NG" "\u099E"
-   "T" "\u099F"
-   "Th" "\u09A0"
-   "D" "\u09A1"
-   "Dh" "\u09A2"
-   "N" "\u09A3"
-   "t" "\u09A4"
-   "th" "\u09A5"
-   "d" "\u09A6"
-   "dh" "\u09A7"
-   "n" "\u09A8"
-   "p" "\u09AA"
-   "f" "\u09AB"
-   "b" "\u09AC"
-   "bh" "\u09AD"
-   "m" "\u09AE"
-   "y" "\u09AF"
-   "r" "\u09B0"
-   "l" "\u09B2"
-   "sh" "\u09B6"
-   "Sh" "\u09B7"
-   "s" "\u09B8"
-   "h" "\u09B9"
-   "rh" "\u09DC"
-   "Rh" "\u09DD"
+   :k "\u0995"
+   :kh "\u0996"
+   :g "\u0997"
+   :gh "\u0998"
+   :ng "\u0999"
+   :ch "\u099A"
+   :Ch "\u099B"
+   :j "\u099C"
+   :jh "\u099D"
+   :NG "\u099E"
+   :T "\u099F"
+   :Th "\u09A0"
+   :D "\u09A1"
+   :Dh "\u09A2"
+   :N "\u09A3"
+   :t "\u09A4"
+   :th "\u09A5"
+   :d "\u09A6"
+   :dh "\u09A7"
+   :n "\u09A8"
+   :p "\u09AA"
+   :f "\u09AB"
+   :b "\u09AC"
+   :bh "\u09AD"
+   :m "\u09AE"
+   :y "\u09AF"
+   :r "\u09B0"
+   :l "\u09B2"
+   :sh "\u09B6"
+   :Sh "\u09B7"
+   :s "\u09B8"
+   :h "\u09B9"
+   :rh "\u09DC"
+   :Rh "\u09DD"
    }
   )
 
@@ -60,25 +60,74 @@
    }
   )
 
-(def bangla-vowels
+(def bangla-one-character-patterns
   {
-   "a" "\u0985"
-   "A" "\u0986"
-   "i" "\u0987"
-   "I" "\u0988"
-   "u" "\u0989"
-   "U" "\u098A"
-   "e" "\u098F"
-   "oi" "\u0990"
-   "o" "\u0993"
-   "ou" "\u0994"
+   "a" :a
+   "A" :A
+   "i" :i
+   "I" :I
+   "u" :u
+   "U" :U
+   "e" :e
+   "o" :o
+   "k" :k
+   "K" :K
+   "g" :g
+   "G" :G
+   "j" :j
+   "J" :J
+   "T" :T
+   "D" :D
+   "N" :N
+   "t" :t
+   "d" :d
+   "n" :n
+   "p" :p
+   "f" :f
+   "b" :b
+   "m" :m
+   "y" :y
+   "r" :r
+   "l" :l
+   "s" :s
+   "h" :h
    }
   )
 
-(def bangla-two-character-vowels
+(def bangla-vowels
   {
-   "oi" "\u0990"
-   "ou" "\u0994"
+   :a "\u0985"
+   :A "\u0986"
+   :i "\u0987"
+   :I "\u0988"
+   :u "\u0989"
+   :U "\u098A"
+   :e "\u098F"
+   :oi "\u0990"
+   :o "\u0993"
+   :ou "\u0994"
+   }
+  )
+
+(def bangla-two-character-patterns
+  {
+   "oi" :oi
+   "ou" :ou
+   "kh" :kh
+   "gh" :gh
+   "ng" :ng
+   "ch" :ch
+   "Ch" :Ch
+   "NG" :NG
+   "Th" :Th
+   "Dh" :Dh
+   "th" :th
+   "dh" :dh
+   "bh" :bh
+   "sh" :sh
+   "Sh" :Sh
+   "rh" :rh
+   "Rh" :Rh
    }
   )
 
@@ -104,7 +153,15 @@
 
 (defn is-vowel?
   [c]
-  (not= (bangla-vowels c) nil)
+  (or (= c \a)
+      (= c \A)
+      (= c \i)
+      (= c \I)
+      (= c \u)
+      (= c \U)
+      (= c \e)
+      (= c \o)
+      false)
   )
 
 (defn is-symbol?
@@ -180,7 +237,7 @@
 (defn convert-two-character-vowel
   [chars]
   (if (> (count chars) 1)
-    {:converted (bangla-two-character-vowels (apply str (firsttwo chars)))
+    {:converted (bangla-vowels (bangla-two-character-patterns (apply str (firsttwo chars))))
      :unconverted (rest (rest chars))}
     {:converted "" :unconverted chars}
     )
@@ -190,7 +247,10 @@
   [chars]
   (try-two-conversions chars
                        convert-two-character-consonant
-                       bangla-consonants)
+                       (fn [chars]
+                         (bangla-consonants (bangla-one-character-patterns chars))
+                         )
+                       )
   )
 
 (defn convert-vowel
@@ -203,7 +263,10 @@
   [chars]
   (try-two-conversions chars
                        convert-two-character-vowel
-                       bangla-vowels)
+                       (fn [chars]
+                         (bangla-vowels (bangla-one-character-patterns chars))
+                         )
+                       )
   )
 
 (defn convert-vowel-prefix
