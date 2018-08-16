@@ -1,6 +1,8 @@
 (ns generate-bangla-utf8-cljs.converter
   )
 
+(def bangla-join-character "\u09CD")
+
 (def bangla-consonants
   {
    :k "\u0995"
@@ -37,26 +39,6 @@
    :h "\u09B9"
    :rh "\u09DC"
    :Rh "\u09DD"
-   }
-  )
-
-(def bangla-two-character-consonants
-  {
-   "kh" "\u0996"
-   "gh" "\u0998"
-   "ng" "\u0999"
-   "ch" "\u099A"
-   "Ch" "\u099B"
-   "NG" "\u099E"
-   "Th" "\u09A0"
-   "Dh" "\u09A2"
-   "th" "\u09A5"
-   "dh" "\u09A7"
-   "bh" "\u09AD"
-   "sh" "\u09B6"
-   "Sh" "\u09B7"
-   "rh" "\u09DC"
-   "Rh" "\u09DD"
    }
   )
 
@@ -133,16 +115,16 @@
 
 (def bangla-vowel-prefixes
   {
-   "a" ""
-   "A" "\u09BE"
-   "i" "\u09BF"
-   "I" "\u09C0"
-   "u" "\u09C1"
-   "U" "\u09C2"
-   "e" "\u09C7"
-   "oi" "\u09C8"
-   "o" "\u09CB"
-   "ou" "\u09CC"
+   :a ""
+   :A "\u09BE"
+   :i "\u09BF"
+   :I "\u09C0"
+   :u "\u09C1"
+   :U "\u09C2"
+   :e "\u09C7"
+   :oi "\u09C8"
+   :o "\u09CB"
+   :ou "\u09CC"
    }
   )
 
@@ -207,9 +189,9 @@
   {:converted (str string converted) :unconverted unconverted}
   )
 
-(defn firsttwo
+(defn first-two-to-str
   [chars]
-  (cons (first chars) (first (rest chars)))
+  (str (first chars) (nth chars 1))
   )
 
 (defn try-two-conversions
@@ -225,31 +207,34 @@
    )
   )
 
-(defn convert-two-character-consonant
-  [chars]
+(defn convert-two-character-pattern
+  [chars bangla-symbol-to-str]
   (if (> (count chars) 1)
-    {:converted (bangla-two-character-consonants (apply str (firsttwo chars)))
+    {:converted (bangla-symbol-to-str (bangla-two-character-patterns (first-two-to-str chars)))
      :unconverted (rest (rest chars))}
     {:converted "" :unconverted chars}
     )
   )
 
-(defn convert-two-character-vowel
-  [chars]
-  (if (> (count chars) 1)
-    {:converted (bangla-vowels (bangla-two-character-patterns (apply str (firsttwo chars))))
-     :unconverted (rest (rest chars))}
-    {:converted "" :unconverted chars}
+(defn make-two-character-converter
+  [bangla-symbol-to-str]
+  (fn [chars]
+    (convert-two-character-pattern chars bangla-symbol-to-str)
+    )
+  )
+
+(defn make-one-character-converter
+  [bangla-symbol-to-str]
+  (fn [chars]
+    (bangla-symbol-to-str (bangla-one-character-patterns chars))
     )
   )
 
 (defn convert-one-consonant
   [chars]
   (try-two-conversions chars
-                       convert-two-character-consonant
-                       (fn [chars]
-                         (bangla-consonants (bangla-one-character-patterns chars))
-                         )
+                       (make-two-character-converter bangla-consonants)
+                       (make-one-character-converter bangla-consonants)
                        )
   )
 
@@ -262,24 +247,24 @@
   was left untouched)"
   [chars]
   (try-two-conversions chars
-                       convert-two-character-vowel
-                       (fn [chars]
-                         (bangla-vowels (bangla-one-character-patterns chars))
-                         )
+                       (make-two-character-converter bangla-vowels)
+                       (make-one-character-converter bangla-vowels)
                        )
   )
 
 (defn convert-vowel-prefix
   [chars]
-  {:converted (bangla-vowel-prefixes (str (first chars)))
-   :unconverted (rest chars)}
+  (try-two-conversions chars
+                       (make-two-character-converter bangla-vowel-prefixes)
+                       (make-one-character-converter bangla-vowel-prefixes)
+                       )
   )
 
 (defn insert-join-character
   [chars]
   (apply str (first chars)
          (map (fn [char]
-                (str "\u09CD" char)
+                (str bangla-join-character char)
                 )
               (rest chars)
               )
