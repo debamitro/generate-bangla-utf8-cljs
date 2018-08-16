@@ -1,6 +1,5 @@
 (ns generate-bangla-utf8-cljs.converter)
 
-
 (def bangla-join-character "\u09CD")
 
 (def consonant-to-utf8
@@ -40,8 +39,6 @@
    :rh "\u09DC"
    :Rh "\u09DD"})
 
-
-
 (def one-character-to-letter
   {
    "a" :a
@@ -74,8 +71,6 @@
    "s" :s
    "h" :h})
 
-
-
 (def vowel-to-utf8
   {
    :a "\u0985"
@@ -88,8 +83,6 @@
    :oi "\u0990"
    :o "\u0993"
    :ou "\u0994"})
-
-
 
 (def two-character-to-letter
   {
@@ -111,8 +104,6 @@
    "rh" :rh
    "Rh" :Rh})
 
-
-
 (def vowel-prefix-to-utf8
   {
    :a ""
@@ -126,12 +117,9 @@
    :o "\u09CB"
    :ou "\u09CC"})
 
-
-
 (defn is-space?
   [c]
   (= c \space))
-
 
 (defn is-vowel?
   [c]
@@ -145,14 +133,12 @@
       (= c \o)
       false))
 
-
 (defn is-symbol?
   [c]
   (or (= c \^)
       (= c \:)
       (= c \;)
       false))
-
 
 (defn is-consonant?
   [c]
@@ -161,21 +147,16 @@
        (not (is-vowel? c))
        (not (is-symbol? c))))
 
-
-
 (def bangla-symbols
   {
    "^" "\u0981"
    ":" "\u0983"
    ";" "\u0982"})
 
-
-
 (defn convert-symbol
   [chars]
   {:converted (bangla-symbols (str (first chars)))
    :unconverted (rest chars)})
-
 
 (defn convert-space
   "This function does not do anything to
@@ -183,16 +164,13 @@
   [chars]
   {:converted (str (first chars)) :unconverted (rest chars)})
 
-
 (defn prepend-string-to-conversion
   [string {:keys [converted unconverted]}]
   {:converted (str string converted) :unconverted unconverted})
 
-
 (defn first-two-to-str
   [chars]
   (str (first chars) (nth chars 1)))
-
 
 (defn try-two-conversions
   [chars fn1 fn2]
@@ -201,11 +179,7 @@
        {:converted (fn2 (str (first chars)))
         :unconverted (rest chars)}
        {:converted converted :unconverted unconverted}))
-
-
    (fn1 chars)))
-
-
 
 (defn convert-two-character-pattern
   [chars bangla-symbol-to-str]
@@ -214,21 +188,15 @@
      :unconverted (rest (rest chars))}
     {:converted "" :unconverted chars}))
 
-
-
 (defn make-two-character-converter
   [bangla-symbol-to-str]
   (fn [chars]
     (convert-two-character-pattern chars bangla-symbol-to-str)))
 
-
-
 (defn make-one-character-converter
   [bangla-symbol-to-str]
   (fn [chars]
     (bangla-symbol-to-str (one-character-to-letter chars))))
-
-
 
 (defn make-one-letter-converter
   "Generate a function which tries to convert
@@ -241,19 +209,9 @@
                          (make-two-character-converter letter-to-utf8)
                          (make-one-character-converter letter-to-utf8))))
 
-
-
-
 (defn insert-join-character
   [chars]
-  (apply str (first chars)
-         (map (fn [char]
-                (str bangla-join-character char))
-
-              (rest chars))))
-
-
-
+  (apply str (interpose bangla-join-character chars)))
 
 (defn convert-consonant
   [{:keys [converted unconverted]}]
@@ -263,12 +221,7 @@
        (prepend-string-to-conversion
         converted
         ((make-one-letter-converter consonant-to-utf8) unconverted)))
-
-
       {:converted (insert-join-character converted) :unconverted unconverted})))
-
-
-
 
 (defn convert-vowel-prefix-following-consonant
   [{:keys [converted unconverted]}]
@@ -277,22 +230,17 @@
       (prepend-string-to-conversion
        converted
        ((make-one-letter-converter vowel-prefix-to-utf8) unconverted))
-
       {:converted converted :unconverted unconverted})
-
     {:converted converted :unconverted unconverted}))
 
-
-
-(defn convert-consonant-and-vowel
-  "This function tries to convert a vowel
-  prefix following a consonant, if applicable.
-  Otherwise it does nothing other than convert-consonant"
-  [chars]
-  (convert-vowel-prefix-following-consonant
-   (convert-consonant {:converted "" :unconverted chars})))
-
-
+(defn make-consonant-and-vowel-converter
+  "Generate a function for converting a
+  consonant (single or compound) optionally
+  followed by a vowel prefix"
+  []
+  (fn [chars]
+    (convert-vowel-prefix-following-consonant
+      (convert-consonant {:converted "" :unconverted chars}))))
 
 (defn make-converter
   "Generate a function for conversion
@@ -304,11 +252,7 @@
       (make-one-letter-converter vowel-to-utf8)
       (if (is-symbol? firstchar)
         (fn [chars] (convert-symbol chars))
-        (fn [chars] (convert-consonant-and-vowel chars))))))
-          
-
-
-
+        (make-consonant-and-vowel-converter)))))
 
 (defn ^:export to-bangla-utf8
   "This routine is the only functionality exported from this namespace"
@@ -317,5 +261,4 @@
     ""
     ((fn [{:keys [converted unconverted]}]
        (str converted (to-bangla-utf8 unconverted)))
-
      ((make-converter (first englishInput)) englishInput))))
