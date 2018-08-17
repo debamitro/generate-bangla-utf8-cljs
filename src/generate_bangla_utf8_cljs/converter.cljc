@@ -69,7 +69,10 @@
    "r" :r
    "l" :l
    "s" :s
-   "h" :h})
+   "h" :h
+   "^" :cbindu
+   ":" :bisarga
+   ";" :anuswar})
 
 (def vowel-to-utf8
   {
@@ -133,7 +136,7 @@
       (= c \o)
       false))
 
-(defn is-symbol?
+(defn is-misc?
   [c]
   (or (= c \^)
       (= c \:)
@@ -145,17 +148,17 @@
   (and (not= c nil)
        (not (is-space? c))
        (not (is-vowel? c))
-       (not (is-symbol? c))))
+       (not (is-misc? c))))
 
-(def bangla-symbols
+(def misc-to-utf8
   {
-   "^" "\u0981"
-   ":" "\u0983"
-   ";" "\u0982"})
+   :cbindu "\u0981"
+   :bisarga "\u0983"
+   :anuswar "\u0982"})
 
-(defn convert-symbol
+(defn convert-misc
   [chars]
-  {:converted (bangla-symbols (str (first chars)))
+  {:converted (misc-to-utf8 (one-character-to-letter (str (first chars))))
    :unconverted (rest chars)})
 
 (defn convert-space
@@ -249,8 +252,8 @@
     (fn [chars] (convert-space chars))
     (if (is-vowel? firstchar)
       (make-one-letter-converter vowel-to-utf8)
-      (if (is-symbol? firstchar)
-        (fn [chars] (convert-symbol chars))
+      (if (is-misc? firstchar)
+        (fn [chars] (convert-misc chars))
         (make-consonant-and-vowel-converter)))))
 
 (defn ^:export to-bangla-utf8
