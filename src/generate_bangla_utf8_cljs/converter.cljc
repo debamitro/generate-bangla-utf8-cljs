@@ -89,6 +89,9 @@
 
 (def two-character-to-letter
   {
+   "aa" :A
+   "ee" :I
+   "oo" :U
    "oi" :oi
    "ou" :ou
    "kh" :kh
