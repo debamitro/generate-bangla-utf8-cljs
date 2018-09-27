@@ -1,6 +1,11 @@
 <!doctype html>
 
 <html>
+
+  <!--
+    This is a demo for generate_bangla_utf8_cljs.converter.to_bangla_utf8
+  //-->
+
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Write Bangla</title>
@@ -8,6 +13,25 @@
     <script src="target/out.js" charset="utf-8"></script>
     <script>
       ready(generate_bangla_utf8_cljs.core.attach_events);
+    </script>
+    <script>
+      function replaceTextInNode (node) {
+        if (node.nodeType == 3) {
+          newText = generate_bangla_utf8_cljs.converter.to_bangla_utf8(node.nodeValue);
+          node.nodeValue = newText;
+        }
+        if (node.hasChildNodes()) {
+          node.childNodes.forEach(replaceTextInNode);
+        }
+      }
+      ready(function () {
+      document.querySelectorAll("transliterate").forEach(function (elem) {
+      if (elem.hasAttribute("language") &&
+          elem.getAttribute("language") == "bangla") {
+          replaceTextInNode(elem);
+        }
+      });
+      });
     </script>
   </head>
 
@@ -20,5 +44,11 @@
     <button id="convertButton">Convert</button>
     <h3>Output in Unicode</h3>
     <div id="banglaOutput"></div>
+
+    <transliterate language="bangla">
+      <div>
+        bA;lA bhAShAr parIkShA
+      </div>
+    </transliterate>
   </body>
 </html>
