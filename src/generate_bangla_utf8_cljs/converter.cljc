@@ -74,7 +74,8 @@
    "h" :h
    "^" :cbindu
    ":" :bisarga
-   ";" :anuswar})
+   ";" :anuswar
+   "`" :hasanta })
 
 (def vowel-to-utf8
   {
@@ -146,6 +147,7 @@
   (or (= c \^)
       (= c \:)
       (= c \;)
+      (= c \`)
       false))
 
 (defn is-consonant?
@@ -159,7 +161,8 @@
   {
    :cbindu "\u0981"
    :bisarga "\u0983"
-   :anuswar "\u0982"})
+   :anuswar "\u0982"
+   :hasanta "\u09CD"})
 
 (defn convert-misc
   [chars]
