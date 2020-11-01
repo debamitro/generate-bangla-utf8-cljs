@@ -18,6 +18,10 @@ TBD
 
 Please refer to the README in https://github.com/debamitro/generate-bangla-utf8
 
+## Input format
+
+This is documented at https://github.com/debamitro/generate-bangla-utf8/blob/master/doc/input_format.md
+
 ## Examples
 
 Run the tests using
