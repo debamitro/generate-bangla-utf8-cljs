@@ -55,7 +55,7 @@
    "g" :g
    "G" :G
    "j" :j
-   "J" :J
+   "J" :jh
    "T" :T
    "D" :D
    "N" :N
@@ -102,6 +102,7 @@
    "ng" :ng
    "ch" :ch
    "Ch" :Ch
+   "jh" :jh
    "NG" :NG
    "Th" :Th
    "Dh" :Dh
